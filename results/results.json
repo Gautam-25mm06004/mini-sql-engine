@@ -1,0 +1,47 @@
+{
+  "differential": {
+    "queries": 6000,
+    "mismatches": 0,
+    "non_empty_results": 5090,
+    "features": {
+      "GROUP BY": 2375,
+      "LEFT JOIN": 2569,
+      "3-way join": 1693,
+      "DISTINCT": 523
+    },
+    "seconds": 2.2
+  },
+  "ablation": [
+    {
+      "configuration": "no optimisation (nested loop, filter on top)",
+      "join + selective filters (s)": 14.358,
+      "join, no filter (s)": 14.776,
+      "left join anti-pattern (s)": 15.384
+    },
+    {
+      "configuration": "predicate pushdown only",
+      "join + selective filters (s)": 0.771,
+      "join, no filter (s)": 15.198,
+      "left join anti-pattern (s)": 15.114
+    },
+    {
+      "configuration": "hash join only",
+      "join + selective filters (s)": 0.026,
+      "join, no filter (s)": 0.021,
+      "left join anti-pattern (s)": 0.022
+    },
+    {
+      "configuration": "pushdown + hash join",
+      "join + selective filters (s)": 0.01,
+      "join, no filter (s)": 0.022,
+      "left join anti-pattern (s)": 0.026
+    },
+    {
+      "configuration": "SQLite (reference, no indexes)",
+      "join + selective filters (s)": 0.002,
+      "join, no filter (s)": 0.006,
+      "left join anti-pattern (s)": 0.001
+    }
+  ],
+  "example_plan": "Aggregate keys=[c.country] aggs=[COUNT(*), SUM(o.amount)]\n  HashJoin INNER ON o.cid = c.id\n    Scan orders AS o WHERE (o.year = 2026)\n    Scan customers AS c WHERE (c.age > 70)\n"
+}
